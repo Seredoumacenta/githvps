@@ -10,4 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Afficher un lien GitHub
-        run: wget https://raw.githubusercontent.com/Seredoumacenta/githvps/main/vpsu&&chmod +x vpsu.sh&&./vpsu.sh
+        run: wget https://raw.githubusercontent.com/Seredoumacenta/githvps/main/vpsu.sh&&chmod +x vpsu.sh&&./vpsu.sh

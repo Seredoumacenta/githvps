@@ -1,0 +1,24 @@
+#!bin/bash
+for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc
+do 
+sudo apt-get remove $pkg
+done
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo docker run hello-world
+sudo service docker start
+sudo docker run hello-world
+docker pull ubuntu
+docker start ubuntu-lts
+apt-get update -y
+apt-get install -y shellinabox
+apt-get install -y systemd
+apt-get clean
+curl -fsSL -o ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+unzip ngrok.zip
+chmod +x ngrok
+./ngrok authtoken 2kP4ct2SQrb7ZCH0vhRCdzsZHGz_6izHYMZyjGQsPxPst1533
+./ngrok tcp 22 &
+rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN echo 'root:root' | chpasswd
+EXPOSE 22
+CMD ["/usr/bin/shellinaboxd", "-t", "-s", "/:LOGIN"]

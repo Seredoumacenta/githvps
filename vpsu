@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# Installer Docker s'il n'est pas déjà installé
+if ! command -v docker &> /dev/null; then
+    echo "Installing Docker..."
+    curl -fsSL https://get.docker.com -o get-docker.sh
+    sudo sh get-docker.sh
+    sudo usermod -aG docker $USER
+    sudo systemctl enable docker
+    sudo systemctl start docker
+    echo "Docker installed."
+else
+    echo "Docker is already installed."
+fi
+
+# Récupérer la version LTS la plus récente d'Ubuntu
+latest_lts=$(curl -sSL https://api.github.com/repos/docker-library/official-images/releases/latest | \
+    grep -E 'ubuntu/.*-lts' | \
+    cut -d'"' -f4 | \
+    cut -d'/' -f2)
+
+# Créer et démarrer le conteneur Ubuntu LTS avec accès SSH et ngrok
+echo "Creating Ubuntu container (latest LTS)..."
+docker pull ubuntu:$latest_lts
+docker run -d --name ubuntu-lts --restart always ubuntu:$latest_lts
+
+# Installer openssh-server pour SSH
+docker exec -it ubuntu-lts apt-get update
+docker exec -it ubuntu-lts apt-get install -y openssh-server
+
+# Démarrer SSH
+docker exec -d ubuntu-lts service ssh start
+
+# Télécharger et installer ngrok si ce n'est pas déjà fait
+if [ ! -f ngrok ]; then
+    echo "Downloading ngrok..."
+    curl -fsSL -o ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+    unzip ngrok.zip
+    chmod +x ngrok
+    echo "ngrok downloaded."
+else
+    echo "ngrok is already downloaded."
+fi
+
+# Démarrer ngrok pour exposer le port SSH (par exemple, port 22)
+echo "Starting ngrok tunnel for SSH..."
+./ngrok authtoken 2kP4ct2SQrb7ZCH0vhRCdzsZHGz_6izHYMZyjGQsPxPst1533  # Remplacez par votre jeton d'authentification ngrok
+./ngrok tcp 22 &
+
+# Fonction pour redémarrer le conteneur en cas d'arrêt
+function check_container {
+    while true; do
+        if [[ "$(docker inspect -f '{{.State.Running}}' ubuntu-lts 2>/dev/null)" == "false" ]]; then
+            echo "Restarting container..."
+            docker start ubuntu-lts
+        fi
+        sleep 10
+    done
+}
+
+# Vérifier et redémarrer le conteneur en cas d'arrêt
+check_container &
+
+
+
+
+
+
+
+
+
+
+
+
+

